@@ -1,4 +1,4 @@
-import 'package:OffQuiz/home/quizScreen.dart';
+import 'package:OffQuiz/home/Quiz/quizScreen.dart';
 import 'package:OffQuiz/model/question.dart';
 import 'package:flutter/material.dart';
 
@@ -7,8 +7,11 @@ class QuizCard extends StatelessWidget {
   final double elevation = 4;
   final String quizName;
   final String facultyName;
-  List<Question> questions = [];
-  QuizCard({required this.quizName, required this.facultyName});
+  List<Question> questions;
+  QuizCard(
+      {required this.quizName,
+      required this.facultyName,
+      required this.questions});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,15 @@ class QuizCard extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => QuizScreen(
                       questions: questions,
+                      quizName: quizName,
                     )));
+        print("Card Clicked!");
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) => QuizScreen(
+        //               questions: questions,
+        //             )));
       },
       child: Card(
         margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
