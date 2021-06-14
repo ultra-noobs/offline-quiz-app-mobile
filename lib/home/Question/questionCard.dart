@@ -5,17 +5,16 @@ class QuestionCard extends StatefulWidget {
   Question question;
   int index;
   QuestionCard({required this.question, required this.index});
+  var _radioValue;
 
   @override
   _QuestionCardState createState() => _QuestionCardState();
 }
 
 class _QuestionCardState extends State<QuestionCard> {
-  var _radioValue;
-
   void _handleRadioValueChange(value) {
     setState(() {
-      _radioValue = value;
+      widget._radioValue = value;
     });
   }
 
@@ -24,7 +23,7 @@ class _QuestionCardState extends State<QuestionCard> {
     for (int i = 0; i < widget.question.options.length; i++) {
       listOptions.add(
         RadioListTile(
-          groupValue: _radioValue,
+          groupValue: widget._radioValue,
           onChanged: _handleRadioValueChange,
           value: i,
           title: Text(
