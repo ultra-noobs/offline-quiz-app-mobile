@@ -1,18 +1,38 @@
 import 'package:OffQuiz/model/question.dart';
 import 'package:flutter/material.dart';
 
-class QuestionCard extends StatelessWidget {
+class QuestionCard extends StatefulWidget {
   Question question;
   int index;
   QuestionCard({required this.question, required this.index});
 
+  @override
+  _QuestionCardState createState() => _QuestionCardState();
+}
+
+class _QuestionCardState extends State<QuestionCard> {
+  var _radioValue;
+
+  void _handleRadioValueChange(value) {
+    setState(() {
+      _radioValue = value;
+    });
+  }
+
   fetchOptions() {
-    List<Text> listOptions = [];
-    for (int i = 0; i < question.options.length; i++) {
-      listOptions.add(Text(
-        "${String.fromCharCode(i + 97)}. ${question.options[i]}",
-        style: TextStyle(fontSize: 16),
-      ));
+    List<RadioListTile> listOptions = [];
+    for (int i = 0; i < widget.question.options.length; i++) {
+      listOptions.add(
+        RadioListTile(
+          groupValue: _radioValue,
+          onChanged: _handleRadioValueChange,
+          value: i,
+          title: Text(
+            "${String.fromCharCode(i + 97)}. ${widget.question.options[i]}",
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
     }
     return listOptions;
   }
@@ -26,13 +46,13 @@ class QuestionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Q$index) ${question.ques}",
+              "Q${widget.index}) ${widget.question.ques}",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 15),
             Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: fetchOptions())
