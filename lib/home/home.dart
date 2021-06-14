@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int duration = 7200;
   List<Quiz> quizzes = [
     Quiz(quizName: "EndSem Quiz for CS202", facultyName: "New Kumar"),
     Quiz(
@@ -73,6 +74,7 @@ class _HomeState extends State<Home> {
                   quizName: quiz.quizName,
                   facultyName: quiz.facultyName,
                   questions: questions,
+                  duration: duration,
                 ))
             .toList(),
       ),
