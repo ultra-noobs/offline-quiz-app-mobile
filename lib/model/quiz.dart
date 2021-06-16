@@ -1,5 +1,13 @@
+import 'package:OffQuiz/model/question.dart';
+
 class Quiz {
   String quizName;
-  String facultyName;
-  Quiz({required this.quizName, required this.facultyName});
+  String date;
+  String time;
+  List<Question> questions;
+  Quiz(
+      {required this.quizName,
+      required this.date,
+      required this.time,
+      required this.questions});
 }

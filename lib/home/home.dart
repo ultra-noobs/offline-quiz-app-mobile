@@ -18,60 +18,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // List<Quiz> quizzes = [
-  //   Quiz(quizName: "EndSem Quiz for CS202", facultyName: "New Kumar"),
-  //   Quiz(
-  //       quizName: "EndSem Quiz for CS206",
-  //       facultyName: "Nomrata Debi cum JaiMaheshmati Mayank"),
-  //   Quiz(quizName: "EndSem Quiz for CS204", facultyName: "Space"),
-  //   Quiz(quizName: "EndSem Quiz for MA201", facultyName: "Babu Thana Thaya"),
-  //   Quiz(quizName: "EndSem Quiz for CS201", facultyName: "Asus Phophalia"),
-  //   Quiz(quizName: "EndSem Quiz for EC201", facultyName: "Vimal Kishore Jha2"),
-  //   Quiz(quizName: "EndSem Quiz for CS208", facultyName: "Vimal Kishore Jha2"),
-  // ];
-  // List<Question> questions = [
-  //   Question(
-  //     ques: "Who invented JavaScript?",
-  //     options: ["Douglas Crockford", "Sheryl Sandberg", "Brendan Eich"],
-  //   ),
-  //   Question(
-  //     ques: "Which one of these is a JavaScript package manager?",
-  //     options: ["Node.js", "TypeScript", "npm"],
-  //   ),
-  //   Question(
-  //     ques: "Which tool can you use to ensure code quality?",
-  //     options: ["Angular", "jQuery", "RequireJS", "ESLint"],
-  //   ),
-  //   Question(
-  //     ques: "Who invented JavaScript?",
-  //     options: ["Douglas Crockford", "Sheryl Sandberg", "Brendan Eich"],
-  //   ),
-  //   Question(
-  //     ques: "Which one of these is a JavaScript package manager?",
-  //     options: ["Node.js", "TypeScript", "npm"],
-  //   ),
-  //   Question(
-  //     ques: "Which tool can you use to ensure code quality?",
-  //     options: ["Angular", "jQuery", "RequireJS", "ESLint"],
-  //   ),
-  //   Question(
-  //     ques: "Who invented JavaScript?",
-  //     options: ["Douglas Crockford", "Sheryl Sandberg", "Brendan Eich"],
-  //   ),
-  //   Question(
-  //     ques: "Which one of these is a JavaScript package manager?",
-  //     options: ["Node.js", "TypeScript", "npm"],
-  //   ),
-  //   Question(
-  //     ques: "Which tool can you use to ensure code quality?",
-  //     options: ["Angular", "jQuery", "RequireJS", "ESLint"],
-  //   ),
-  // ];
   final telephony = Telephony.instance;
   List<SmsMessage> _messages = [];
   List<String> _quizMessage = [];
   bool? _permissionsGranted;
-  int _duration = 7200;
+  List<Question> _questions = [];
   List<int> _mapping = [
     64,
     59,
@@ -169,7 +120,6 @@ class _HomeState extends State<Home> {
     106,
     99
   ];
-
   List<Demapping> _demapping = [];
   getDemapping() {
     _demapping = [];
@@ -248,6 +198,83 @@ class _HomeState extends State<Home> {
     return g.join("");
   }
 
+  getQuestions() {
+    _questions = [];
+    for (int i = 0; i < _quizMessage.length; i++) {
+      String message = _quizMessage[i];
+      String temp = "";
+      String quizName = "",
+          quizStartTime = "",
+          quizDate = "",
+          quizEndTime = "",
+          phoneNo = "";
+      int itr = 0;
+      while (message[itr] != "#") {
+        quizName += message[itr];
+        itr++;
+      }
+      itr += 4;
+      while (message[itr] != "#") {
+        quizStartTime += message[itr];
+        itr++;
+      }
+      itr += 4;
+      while (message[itr] != "#") {
+        quizDate += message[itr];
+        itr++;
+      }
+      itr += 4;
+      while (message[itr] != "#") {
+        quizEndTime += message[itr];
+        itr++;
+      }
+      itr += 4;
+      while (message[itr] != "#") {
+        phoneNo += message[itr];
+        itr++;
+      }
+      itr += 4;
+      // print(message[itr]); // outputs t of 't'his is a test questions
+      List<String> options = [];
+      String question = "";
+      String option = "";
+      bool flag = true;
+      try {
+        while (itr < message.length) {
+          if (message[itr] == "#") {
+            itr += 4;
+            if (itr + 1 < message.length && message[itr + 1] != ")") {
+              _questions.add(Question(ques: question, options: options));
+              question = "";
+              options = [];
+              option = "";
+              flag = true;
+            } else {
+              if (option == "") continue;
+              options.add(option);
+              print(option);
+              option = "";
+            }
+          } else if (!flag &&
+              itr + 1 < message.length &&
+              message[itr + 1] == ")") {
+            itr += 2;
+            option += message[itr];
+            itr++;
+          } else if (flag) {
+            question += message[itr];
+            itr++;
+            if (itr < message.length && message[itr] == "#") flag = false;
+          } else {
+            print("This should not be printed!");
+          }
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     getMessages();
@@ -257,9 +284,13 @@ class _HomeState extends State<Home> {
     }
     getDemapping();
     decryptMessage();
-    for (int i = 0; i < _quizMessage.length; i++) {
-      print(_quizMessage[i]);
-    }
+    // getQuestions();
+    // for (int i = 0; i < _questions.length; i++) {
+    //   print(i.toString() + " " + _questions[i].ques);
+    //   // for (int j = 0; j < _questions[i].options.length; j++) {
+    //   //   print(_questions[i].options[j] + " ");
+    //   // }
+    // }
     return Scaffold(
       appBar: appBar("OffQuiz"),
       body: ListView(
