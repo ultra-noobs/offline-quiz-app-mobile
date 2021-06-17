@@ -121,6 +121,13 @@ class _HomeState extends State<Home> {
     99
   ];
   List<Demapping> _demapping = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getMessages();
+  }
+
   getDemapping() {
     _demapping = [];
     for (int i = 0; i < _mapping.length; i++) {
@@ -167,14 +174,18 @@ class _HomeState extends State<Home> {
     }
   }
 
-  getPermissions(permissionsGranted) async {
-    permissionsGranted = await telephony.requestSmsPermissions;
-  }
-
   Future<void> getMessages() async {
-    getPermissions(_permissionsGranted);
+    _permissionsGranted = await telephony.requestSmsPermissions;
     _messages = await telephony
         .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
+    getQuiz();
+    for (int i = 0; i < _quizMessages.length; i++) {
+      _quizMessages[i] = de(_quizMessages[i]);
+    }
+    getDemapping();
+    decryptMessage();
+    doShifting();
+    getQuizzes();
   }
 
   getQuiz() {
@@ -309,15 +320,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    getMessages();
-    getQuiz();
-    for (int i = 0; i < _quizMessages.length; i++) {
-      _quizMessages[i] = de(_quizMessages[i]);
-    }
-    getDemapping();
-    decryptMessage();
-    doShifting();
-    getQuizzes();
+    // getMessages();
 
     return Scaffold(
       appBar: appBar("OffQuiz"),
@@ -335,7 +338,7 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Hurray! You do not have any quiz scheduled!",
+                    "Please reload to fetch the latest quizzes",
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w400,
@@ -344,6 +347,15 @@ class _HomeState extends State<Home> {
                 ],
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {});
+        },
+        child: Icon(
+          Icons.refresh,
+          color: Colors.white,
+        ),
+      ),
     );
   }
 }
