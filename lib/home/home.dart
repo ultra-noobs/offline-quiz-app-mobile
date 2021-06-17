@@ -157,10 +157,10 @@ class _HomeState extends State<Home> {
     for (int i = 0; i < _quizMessages.length; i++) {
       temp = "";
       message = _quizMessages[i];
-      for (int j = message.length - 20; j < message.length; j++) {
+      for (int j = message.length - 18; j < message.length; j++) {
         temp += message[j];
       }
-      for (int j = 0; j < message.length - 20; j++) {
+      for (int j = 0; j < message.length - 18; j++) {
         temp += message[j];
       }
       _quizMessages[i] = temp;
@@ -172,15 +172,9 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> getMessages() async {
-    // List<String> smsNumbers = ["57575701", "59039000"];
     getPermissions(_permissionsGranted);
     _messages = await telephony
         .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
-    // filter: SmsFilter.where(SmsColumn.ADDRESS).inValues(smsNumbers),
-    // sortOrder: [
-    //   OrderBy(SmsColumn.ADDRESS, sort: Sort.ASC),
-    //   OrderBy(SmsColumn.BODY)
-    // ]);
   }
 
   getQuiz() {
@@ -233,38 +227,32 @@ class _HomeState extends State<Home> {
           quizDate = "",
           quizEndTime = "",
           phoneNo = "";
-      int itr = 2;
+      int itr = 0;
       while (message[itr] != "#") {
         quizName += message[itr];
         itr++;
       }
-      // print(quizName);
       itr += 2;
       while (message[itr] != "#") {
         quizStartTime += message[itr];
         itr++;
       }
-      // print(quizStartTime);
       itr += 2;
       while (message[itr] != "#") {
         quizDate += message[itr];
         itr++;
       }
-      // print(quizDate);
       itr += 2;
       while (message[itr] != "#") {
         quizEndTime += message[itr];
         itr++;
       }
-      // print(quizEndTime);
       itr += 2;
       while (message[itr] != "#") {
         phoneNo += message[itr];
         itr++;
       }
-      // print(phoneNo);
       itr += 4;
-      // print(message[itr]); // outputs t of 't'his is a test questions
       List<String> options = [];
       String question = "";
       String option = "";
@@ -273,20 +261,26 @@ class _HomeState extends State<Home> {
         while (itr < message.length) {
           if (message[itr] == "#") {
             itr += 2;
-            if (itr + 1 < message.length && message[itr + 1] != ")") {
+            if (itr + 1 < message.length && message[itr + 1] == ")") {
+              continue;
+            } else if (itr <= message.length) {
+              options.add(option);
               _questions.add(Question(ques: question, options: options));
               question = "";
               options = [];
               option = "";
               flag = true;
             } else {
-              if (option == "") continue;
-              options.add(option);
-              print(option);
-              option = "";
+              print("This should not be printed ##");
             }
           } else if (!flag) {
-            if (itr + 1 < message.length && message[itr + 1] == ")") itr += 2;
+            if (itr + 1 < message.length && message[itr + 1] == ")") {
+              itr += 2;
+              if (option != "") {
+                options.add(option);
+                option = "";
+              }
+            }
             option += message[itr];
             itr++;
           } else if (flag) {
@@ -294,10 +288,9 @@ class _HomeState extends State<Home> {
             itr++;
             if (itr < message.length && message[itr] == "#") {
               flag = false;
-              // print(question);
             }
           } else {
-            print("This should not be printed!");
+            print("This should not be printed !!");
             itr++;
           }
         }
@@ -318,30 +311,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     getMessages();
     getQuiz();
-    // for (int i = 0; i < _quizMessages.length; i++) {
-    //   print(_quizMessages[i]);
-    // }
     for (int i = 0; i < _quizMessages.length; i++) {
       _quizMessages[i] = de(_quizMessages[i]);
     }
     getDemapping();
     decryptMessage();
     doShifting();
-    for (int i = 0; i < _quizMessages.length; i++) {
-      print(_quizMessages[i]);
-    }
     getQuizzes();
-    // for (int i = 0; i < _quizzes.length; i++) {
-    //   print(_quizzes[i].quizName);
-    //   print(_quizzes[i].startTime);
-    //   print(_quizzes[i].date);
-    //   print(_quizzes[i].endTime);
-    //   print(_quizzes[i].phoneNo);
-    //   for (int j = 0; j < _quizzes[i].questions.length; j++) {
-    //     print(_quizzes[i].questions[j].ques);
-    //     print(_quizzes[i].questions[j].options.length);
-    //   }
-    // }
+
     return Scaffold(
       appBar: appBar("OffQuiz"),
       body: ListView(
