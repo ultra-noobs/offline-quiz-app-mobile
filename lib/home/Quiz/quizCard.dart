@@ -1,19 +1,13 @@
 import 'package:OffQuiz/home/Quiz/quizScreen.dart';
 import 'package:OffQuiz/model/question.dart';
+import 'package:OffQuiz/model/quiz.dart';
 import 'package:flutter/material.dart';
 
 class QuizCard extends StatelessWidget {
-  final double pad = 70;
+  double pad = 70;
   final double elevation = 4;
-  final String quizName;
-  final String facultyName;
-  final int duration;
-  List<Question> questions;
-  QuizCard(
-      {required this.quizName,
-      required this.facultyName,
-      required this.questions,
-      required this.duration});
+  Quiz quiz;
+  QuizCard({required this.quiz});
 
   Widget _buildPopupDialog(BuildContext context) {
     return new AlertDialog(
@@ -34,9 +28,7 @@ class QuizCard extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => QuizScreen(
-                          questions: questions,
-                          quizName: quizName,
-                          duration: duration,
+                          quiz: quiz,
                         )));
             // Navigator.pushReplacement(
             //     context,
@@ -77,14 +69,27 @@ class QuizCard extends StatelessWidget {
                 height: 20.0,
               ),
               Text(
-                quizName,
+                quiz.quizName,
                 style: TextStyle(
                   fontSize: 24.0,
                   color: Colors.grey[800],
                 ),
               ),
               SizedBox(
-                height: 20.0,
+                height: 40.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Scheduled at " + quiz.startTime,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  ),
+                  Text(
+                    "Quiz Closes on " + quiz.endTime,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  ),
+                ],
               ),
             ],
           ),

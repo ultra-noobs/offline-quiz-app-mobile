@@ -1,16 +1,12 @@
 import 'package:OffQuiz/home/Question/questionCard.dart';
 import 'package:OffQuiz/model/question.dart';
+import 'package:OffQuiz/model/quiz.dart';
 import 'package:OffQuiz/shared/quizAppBar.dart';
 import 'package:flutter/material.dart';
 
 class QuizScreen extends StatefulWidget {
-  List<Question> questions;
-  String quizName;
-  int duration;
-  QuizScreen(
-      {required this.questions,
-      required this.quizName,
-      required this.duration});
+  Quiz quiz;
+  QuizScreen({required this.quiz});
 
   List<QuestionCard> questionCards = [];
 
@@ -46,9 +42,9 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: quizAppBar(widget.quizName, context, widget.duration),
+        appBar: quizAppBar(widget.quiz.quizName, context, 2),
         body: ListView(
-          children: fetchAllQuestions(widget.questions),
+          children: fetchAllQuestions(widget.quiz.questions),
         ));
   }
 }

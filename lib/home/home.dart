@@ -321,16 +321,29 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: appBar("OffQuiz"),
-      body: ListView(
-          // children: quizzes
-          //     .map((quiz) => QuizCard(
-          //           quizName: quiz.quizName,
-          //           facultyName: quiz.facultyName,
-          //           questions: questions,
-          //           duration: duration,
-          //         ))
-          //     .toList(),
-          children: [Center(child: Text("Incoming Message : "))]),
+      body: _quizzes.length != 0
+          ? ListView(
+              children: _quizzes
+                  .map((quiz) => QuizCard(
+                        quiz: quiz,
+                      ))
+                  .toList(),
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Hurray! You do not have any quiz scheduled!",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
