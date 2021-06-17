@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:OffQuiz/home/Quiz/quizCard.dart';
 import 'package:OffQuiz/model/demapping.dart';
 import 'package:OffQuiz/model/question.dart';
@@ -20,9 +19,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final telephony = Telephony.instance;
   List<SmsMessage> _messages = [];
-  List<String> _quizMessage = [];
+  List<String> _quizMessages = [];
   bool? _permissionsGranted;
   List<Question> _questions = [];
+  List<Quiz> _quizzes = [];
   List<int> _mapping = [
     64,
     59,
@@ -137,8 +137,8 @@ class _HomeState extends State<Home> {
   }
 
   decryptMessage() {
-    for (int i = 0; i < _quizMessage.length; i++) {
-      String message = _quizMessage[i];
+    for (int i = 0; i < _quizMessages.length; i++) {
+      String message = _quizMessages[i];
       String encryptedMsg = "";
       for (int j = 0; j < message.length; j++) {
         var val = charToAscii(message[j]);
@@ -147,7 +147,23 @@ class _HomeState extends State<Home> {
         var value = index[0].place;
         encryptedMsg += asciiToChar(value + 32);
       }
-      _quizMessage[i] = encryptedMsg;
+      _quizMessages[i] = encryptedMsg;
+    }
+  }
+
+  doShifting() {
+    String temp = "";
+    String message = "";
+    for (int i = 0; i < _quizMessages.length; i++) {
+      temp = "";
+      message = _quizMessages[i];
+      for (int j = message.length - 20; j < message.length; j++) {
+        temp += message[j];
+      }
+      for (int j = 0; j < message.length - 20; j++) {
+        temp += message[j];
+      }
+      _quizMessages[i] = temp;
     }
   }
 
@@ -156,21 +172,30 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> getMessages() async {
+    // List<String> smsNumbers = ["57575701", "59039000"];
     getPermissions(_permissionsGranted);
-    _messages = await telephony.getInboxSms(
-        columns: [SmsColumn.ADDRESS, SmsColumn.BODY],
-        filter: SmsFilter.where(SmsColumn.ADDRESS).equals("59039000"));
+    _messages = await telephony
+        .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
+    // filter: SmsFilter.where(SmsColumn.ADDRESS).inValues(smsNumbers),
+    // sortOrder: [
+    //   OrderBy(SmsColumn.ADDRESS, sort: Sort.ASC),
+    //   OrderBy(SmsColumn.BODY)
+    // ]);
   }
 
   getQuiz() {
-    _quizMessage = [];
+    _quizMessages = [];
     String temp = "Sent from your Twilio trial account";
     int tempLen = temp.length;
     for (int i = 0; i < _messages.length; i++) {
-      String temp2 = _messages[i].body.toString().substring(0, tempLen);
-      if (temp == temp2) {
-        _quizMessage
-            .add(_messages[i].body.toString().substring(temp.length + 3));
+      if (_messages[i].body.toString().length > 38) {
+        String temp2 = _messages[i].body.toString().substring(0, tempLen);
+        if (temp == temp2) {
+          _quizMessages
+              .add(_messages[i].body.toString().substring(temp.length + 3));
+        }
+      } else {
+        continue;
       }
     }
   }
@@ -198,41 +223,46 @@ class _HomeState extends State<Home> {
     return g.join("");
   }
 
-  getQuestions() {
-    _questions = [];
-    for (int i = 0; i < _quizMessage.length; i++) {
-      String message = _quizMessage[i];
-      String temp = "";
+  getQuizzes() {
+    _quizzes = [];
+    for (int i = 0; i < _quizMessages.length; i++) {
+      _questions = [];
+      String message = _quizMessages[i];
       String quizName = "",
           quizStartTime = "",
           quizDate = "",
           quizEndTime = "",
           phoneNo = "";
-      int itr = 0;
+      int itr = 2;
       while (message[itr] != "#") {
         quizName += message[itr];
         itr++;
       }
-      itr += 4;
+      // print(quizName);
+      itr += 2;
       while (message[itr] != "#") {
         quizStartTime += message[itr];
         itr++;
       }
-      itr += 4;
+      // print(quizStartTime);
+      itr += 2;
       while (message[itr] != "#") {
         quizDate += message[itr];
         itr++;
       }
-      itr += 4;
+      // print(quizDate);
+      itr += 2;
       while (message[itr] != "#") {
         quizEndTime += message[itr];
         itr++;
       }
-      itr += 4;
+      // print(quizEndTime);
+      itr += 2;
       while (message[itr] != "#") {
         phoneNo += message[itr];
         itr++;
       }
+      // print(phoneNo);
       itr += 4;
       // print(message[itr]); // outputs t of 't'his is a test questions
       List<String> options = [];
@@ -242,7 +272,7 @@ class _HomeState extends State<Home> {
       try {
         while (itr < message.length) {
           if (message[itr] == "#") {
-            itr += 4;
+            itr += 2;
             if (itr + 1 < message.length && message[itr + 1] != ")") {
               _questions.add(Question(ques: question, options: options));
               question = "";
@@ -255,23 +285,32 @@ class _HomeState extends State<Home> {
               print(option);
               option = "";
             }
-          } else if (!flag &&
-              itr + 1 < message.length &&
-              message[itr + 1] == ")") {
-            itr += 2;
+          } else if (!flag) {
+            if (itr + 1 < message.length && message[itr + 1] == ")") itr += 2;
             option += message[itr];
             itr++;
           } else if (flag) {
             question += message[itr];
             itr++;
-            if (itr < message.length && message[itr] == "#") flag = false;
+            if (itr < message.length && message[itr] == "#") {
+              flag = false;
+              // print(question);
+            }
           } else {
             print("This should not be printed!");
+            itr++;
           }
         }
       } catch (e) {
         print(e);
       }
+      _quizzes.add(Quiz(
+          quizName: quizName,
+          date: quizDate,
+          startTime: quizStartTime,
+          endTime: quizEndTime,
+          phoneNo: phoneNo,
+          questions: _questions));
     }
   }
 
@@ -279,17 +318,29 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     getMessages();
     getQuiz();
-    for (int i = 0; i < _quizMessage.length; i++) {
-      _quizMessage[i] = de(_quizMessage[i]);
+    // for (int i = 0; i < _quizMessages.length; i++) {
+    //   print(_quizMessages[i]);
+    // }
+    for (int i = 0; i < _quizMessages.length; i++) {
+      _quizMessages[i] = de(_quizMessages[i]);
     }
     getDemapping();
     decryptMessage();
-    // getQuestions();
-    // for (int i = 0; i < _questions.length; i++) {
-    //   print(i.toString() + " " + _questions[i].ques);
-    //   // for (int j = 0; j < _questions[i].options.length; j++) {
-    //   //   print(_questions[i].options[j] + " ");
-    //   // }
+    doShifting();
+    for (int i = 0; i < _quizMessages.length; i++) {
+      print(_quizMessages[i]);
+    }
+    getQuizzes();
+    // for (int i = 0; i < _quizzes.length; i++) {
+    //   print(_quizzes[i].quizName);
+    //   print(_quizzes[i].startTime);
+    //   print(_quizzes[i].date);
+    //   print(_quizzes[i].endTime);
+    //   print(_quizzes[i].phoneNo);
+    //   for (int j = 0; j < _quizzes[i].questions.length; j++) {
+    //     print(_quizzes[i].questions[j].ques);
+    //     print(_quizzes[i].questions[j].options.length);
+    //   }
     // }
     return Scaffold(
       appBar: appBar("OffQuiz"),
