@@ -1,5 +1,4 @@
 import 'package:OffQuiz/home/Question/questionCard.dart';
-import 'package:OffQuiz/model/question.dart';
 import 'package:OffQuiz/model/quiz.dart';
 import 'package:OffQuiz/shared/quizAppBar.dart';
 import 'package:flutter/material.dart';
@@ -36,15 +35,36 @@ class _QuizScreenState extends State<QuizScreen> {
         ],
       );
     }
-    return allQuestions;
+    return ListView(children: allQuestions);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: quizAppBar(widget.quiz.quizName, context, 2),
-        body: ListView(
-          children: fetchAllQuestions(widget.quiz.questions),
-        ));
+      appBar: quizAppBar("OffQuiz", context, 7200),
+      body: Column(
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(28.0, 15.0, 24.0, 15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    widget.quiz.quizName,
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              child: fetchAllQuestions(widget.quiz.questions),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
