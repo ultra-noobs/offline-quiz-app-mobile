@@ -19,7 +19,6 @@ class _HomeState extends State<Home> {
   final telephony = Telephony.instance;
   List<SmsMessage> _messages = [];
   List<String> _quizMessages = [];
-  bool? _permissionsGranted;
   List<Question> _questions = [];
   List<Quiz> _quizzes = [];
   List<int> _mapping = [
@@ -178,11 +177,6 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> getMessages() async {
-    bool? permission;
-    permission = await telephony.requestSmsPermissions;
-    setState(() {
-      _permissionsGranted = permission;
-    });
     List<SmsMessage> temp;
     temp = await telephony
         .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
