@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:OffQuiz/home/Quiz/quizCard.dart';
 import 'package:OffQuiz/model/demapping.dart';
 import 'package:OffQuiz/model/question.dart';
@@ -154,7 +153,9 @@ class _HomeState extends State<Home> {
         var value = index[0].place;
         encryptedMsg += asciiToChar(value + 32);
       }
-      _quizMessages[i] = encryptedMsg;
+      setState(() {
+        _quizMessages[i] = encryptedMsg;
+      });
     }
   }
 
@@ -170,14 +171,24 @@ class _HomeState extends State<Home> {
       for (int j = 0; j < message.length - 18; j++) {
         temp += message[j];
       }
-      _quizMessages[i] = temp;
+      setState(() {
+        _quizMessages[i] = temp;
+      });
     }
   }
 
   Future<void> getMessages() async {
-    _permissionsGranted = await telephony.requestSmsPermissions;
-    _messages = await telephony
+    bool? permission;
+    permission = await telephony.requestSmsPermissions;
+    setState(() {
+      _permissionsGranted = permission;
+    });
+    List<SmsMessage> temp;
+    temp = await telephony
         .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
+    setState(() {
+      _messages = temp;
+    });
     getQuiz();
     for (int i = 0; i < _quizMessages.length; i++) {
       _quizMessages[i] = de(_quizMessages[i]);
@@ -189,15 +200,19 @@ class _HomeState extends State<Home> {
   }
 
   getQuiz() {
-    _quizMessages = [];
+    setState(() {
+      _quizMessages = [];
+    });
     String temp = "Sent from your Twilio trial account";
     int tempLen = temp.length;
     for (int i = 0; i < _messages.length; i++) {
       if (_messages[i].body.toString().length > 38) {
         String temp2 = _messages[i].body.toString().substring(0, tempLen);
         if (temp == temp2) {
-          _quizMessages
-              .add(_messages[i].body.toString().substring(temp.length + 3));
+          setState(() {
+            _quizMessages
+                .add(_messages[i].body.toString().substring(temp.length + 3));
+          });
         }
       } else {
         continue;
@@ -229,9 +244,14 @@ class _HomeState extends State<Home> {
   }
 
   getQuizzes() {
-    _quizzes = [];
+    setState(() {
+      _quizzes = [];
+    });
+
     for (int i = 0; i < _quizMessages.length; i++) {
-      _questions = [];
+      setState(() {
+        _questions = [];
+      });
       String message = _quizMessages[i];
       String quizName = "",
           quizStartTime = "",
@@ -276,7 +296,9 @@ class _HomeState extends State<Home> {
               continue;
             } else if (itr <= message.length) {
               options.add(option);
-              _questions.add(Question(ques: question, options: options));
+              setState(() {
+                _questions.add(Question(ques: question, options: options));
+              });
               question = "";
               options = [];
               option = "";
@@ -308,13 +330,15 @@ class _HomeState extends State<Home> {
       } catch (e) {
         print(e);
       }
-      _quizzes.add(Quiz(
-          quizName: quizName,
-          date: quizDate,
-          startTime: quizStartTime,
-          endTime: quizEndTime,
-          phoneNo: phoneNo,
-          questions: _questions));
+      setState(() {
+        _quizzes.add(Quiz(
+            quizName: quizName,
+            date: quizDate,
+            startTime: quizStartTime,
+            endTime: quizEndTime,
+            phoneNo: phoneNo,
+            questions: _questions));
+      });
     }
   }
 
@@ -349,7 +373,8 @@ class _HomeState extends State<Home> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {});
+          getMessages();
+          print("Button Clicked!");
         },
         child: Icon(
           Icons.refresh,
