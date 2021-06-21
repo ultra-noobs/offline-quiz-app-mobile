@@ -123,13 +123,18 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    getMessages();
+    _getMessages();
   }
 
-  getDemapping() {
-    _demapping = [];
+  _getDemapping() {
+    setState(() {
+      _demapping = [];
+    });
+
     for (int i = 0; i < _mapping.length; i++) {
-      _demapping.add(Demapping(element: _mapping[i], place: i));
+      setState(() {
+        _demapping.add(Demapping(element: _mapping[i], place: i));
+      });
     }
   }
 
@@ -141,7 +146,7 @@ class _HomeState extends State<Home> {
     return String.fromCharCode(a);
   }
 
-  decryptMessage() {
+  _decryptMessage() {
     for (int i = 0; i < _quizMessages.length; i++) {
       String message = _quizMessages[i];
       String encryptedMsg = "";
@@ -158,7 +163,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  doShifting() {
+  _doShifting() {
     String temp = "";
     String message = "";
     for (int i = 0; i < _quizMessages.length; i++) {
@@ -176,24 +181,26 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> getMessages() async {
+  Future<void> _getMessages() async {
     List<SmsMessage> temp;
     temp = await telephony
         .getInboxSms(columns: [SmsColumn.ADDRESS, SmsColumn.BODY]);
     setState(() {
       _messages = temp;
     });
-    getQuiz();
+    _getQuiz();
     for (int i = 0; i < _quizMessages.length; i++) {
-      _quizMessages[i] = de(_quizMessages[i]);
+      setState(() {
+        _quizMessages[i] = de(_quizMessages[i]);
+      });
     }
-    getDemapping();
-    decryptMessage();
-    doShifting();
-    getQuizzes();
+    _getDemapping();
+    _decryptMessage();
+    _doShifting();
+    _getQuizzes();
   }
 
-  getQuiz() {
+  _getQuiz() {
     setState(() {
       _quizMessages = [];
     });
@@ -237,7 +244,7 @@ class _HomeState extends State<Home> {
     return g.join("");
   }
 
-  getQuizzes() {
+  _getQuizzes() {
     setState(() {
       _quizzes = [];
     });
@@ -253,27 +260,27 @@ class _HomeState extends State<Home> {
           quizEndTime = "",
           phoneNo = "";
       int itr = 0;
-      while (message[itr] != "#") {
+      while (itr < message.length && message[itr] != "#") {
         quizName += message[itr];
         itr++;
       }
       itr += 2;
-      while (message[itr] != "#") {
+      while (itr < message.length && message[itr] != "#") {
         quizStartTime += message[itr];
         itr++;
       }
       itr += 2;
-      while (message[itr] != "#") {
+      while (itr < message.length && message[itr] != "#") {
         quizDate += message[itr];
         itr++;
       }
       itr += 2;
-      while (message[itr] != "#") {
+      while (itr < message.length && message[itr] != "#") {
         quizEndTime += message[itr];
         itr++;
       }
       itr += 2;
-      while (message[itr] != "#") {
+      while (itr < message.length && message[itr] != "#") {
         phoneNo += message[itr];
         itr++;
       }
@@ -366,10 +373,7 @@ class _HomeState extends State<Home> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          getMessages();
-          print("Button Clicked!");
-        },
+        onPressed: _getMessages,
         child: Icon(
           Icons.refresh,
           color: Colors.white,
