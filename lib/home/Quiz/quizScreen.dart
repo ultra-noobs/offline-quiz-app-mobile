@@ -10,11 +10,11 @@ class QuizScreen extends StatefulWidget {
   Quiz quiz;
   QuizScreen({required this.quiz});
 
-  List<QuestionCard> questionCards = [];
-
-  @override
+   @override
   _QuizScreenState createState() => _QuizScreenState();
 }
+
+ List<QuestionCard> questionCards = [];
 
 class _QuizScreenState extends State<QuizScreen> {
   var response = new Map();
@@ -22,7 +22,7 @@ class _QuizScreenState extends State<QuizScreen> {
     response[index] = option;
   }
   void submitTest(){
-    String ans = "";
+    String ans = widget.quiz.quizName + "-" + widget.quiz.date + "\n";
     for(int i=1;i<=widget.quiz.questions.length;i++){
         ans += (i).toString() + ") ";
             if(response[i]==null){
