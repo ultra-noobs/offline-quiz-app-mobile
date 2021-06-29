@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class QuestionCard extends StatefulWidget {
   Question question;
   int index;
-  QuestionCard({required this.question, required this.index});
+  Function setAnswer;
+  QuestionCard({required this.question, required this.index,required this.setAnswer});
   var _radioValue;
 
   @override
@@ -16,6 +17,7 @@ class _QuestionCardState extends State<QuestionCard> {
     setState(() {
       widget._radioValue = value;
     });
+    widget.setAnswer(widget.index,value);
   }
 
   fetchOptions() {

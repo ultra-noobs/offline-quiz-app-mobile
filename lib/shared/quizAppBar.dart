@@ -1,7 +1,7 @@
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 
-AppBar quizAppBar(String title, BuildContext context, int _duration) {
+AppBar quizAppBar(String title, BuildContext context, int _duration,Function submitTest) {
   CountDownController _controller = CountDownController();
   Widget _buildPopupDialog(BuildContext context) {
     return new AlertDialog(
@@ -18,7 +18,7 @@ AppBar quizAppBar(String title, BuildContext context, int _duration) {
         new TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            submitTest();
           },
           child: const Text('Yes'),
         ),
@@ -53,6 +53,7 @@ AppBar quizAppBar(String title, BuildContext context, int _duration) {
         width: MediaQuery.of(context).size.width / 5,
         height: MediaQuery.of(context).size.height / 5,
         ringColor: Colors.grey[300]!,
+        onComplete: ()=>submitTest(),
         fillColor: Colors.orangeAccent[100]!,
         backgroundColor: Colors.orange[100],
         textStyle: TextStyle(

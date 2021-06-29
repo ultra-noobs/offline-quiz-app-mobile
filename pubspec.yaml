@@ -32,6 +32,7 @@ dependencies:
   circular_countdown_timer: ^0.2.0
   telephony: ^0.1.4
   flutter_sms: ^2.3.1
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

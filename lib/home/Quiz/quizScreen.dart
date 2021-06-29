@@ -2,6 +2,9 @@ import 'package:OffQuiz/home/Question/questionCard.dart';
 import 'package:OffQuiz/model/quiz.dart';
 import 'package:OffQuiz/shared/quizAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:telephony/telephony.dart';
+final Telephony telephony = Telephony.instance;
+
 
 class QuizScreen extends StatefulWidget {
   Quiz quiz;
@@ -14,12 +17,33 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
+  var response = new Map();
+  void setAnswer(index,option){
+    response[index] = option;
+  }
+  void submitTest(){
+    String ans = "";
+    for(int i=1;i<=widget.quiz.questions.length;i++){
+        ans += (i).toString() + ") ";
+            if(response[i]==null){
+              ans +="not attempted ";
+            }else{
+              ans += response[i].toString() + " ";
+            }
+    }
+    telephony.sendSms(
+      to: widget.quiz.phoneNo,
+      message: ans
+    );
+    Navigator.pop(context);
+  }
   fetchAllQuestions(questions) {
     List<QuestionCard> allQuestions = [];
     for (int i = 0; i < questions.length; i++) {
       allQuestions.add(QuestionCard(
         question: questions[i],
         index: (i + 1),
+        setAnswer:setAnswer
       ));
     }
     if (allQuestions.length == 0) {
@@ -41,7 +65,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: quizAppBar("OffQuiz", context, 7200),
+      appBar: quizAppBar("OffQuiz", context, 3600,submitTest),
       body: Column(
         children: [
           Card(
