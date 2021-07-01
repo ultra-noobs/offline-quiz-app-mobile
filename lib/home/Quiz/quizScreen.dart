@@ -2,10 +2,16 @@ import 'package:OffQuiz/home/Question/questionCard.dart';
 import 'package:OffQuiz/model/quiz.dart';
 import 'package:OffQuiz/shared/quizAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:telephony/telephony.dart';
 import 'dart:convert';
 
 final Telephony telephony = Telephony.instance;
+class Pair<T1,T2> {
+    T1 first;
+    T2 second;
+    Pair(this.first, this.second);
+}
 
 class QuizScreen extends StatefulWidget {
   Quiz quiz;
@@ -59,46 +65,47 @@ class _QuizScreenState extends State<QuizScreen> {
     return ListView(children: allQuestions);
   }
 
+  Pair<int,int> getHourAndMin(String time){
+    String hr = "",min = "";
+    int i=0;
+    while (time[i] != ':') {
+      hr += time[i];
+      i++;
+    }
+    i++;
+    while (i < time.length) {
+      min += time[i];
+      i++;
+    }
+    return Pair(int.parse(hr),int.parse(min));
+  }
+
   getDuration() {
     String start = widget.quiz.startTime;
+    String currentTime = DateFormat("kk:mm").format(DateTime.now());
     String end = widget.quiz.endTime;
-    var startHr = "", startMin = "", endHr = "", endMin = "";
-    int i = 0;
-    while (start[i] != ':') {
-      startHr += start[i];
-      i++;
+    int startHr = 0, startMin = 0, endHr = 0, endMin = 0,currentHr=0,currentMin=0;
+    Pair<int,int> pr = getHourAndMin(start);
+    startHr = pr.first;
+    startMin = pr.second;
+    pr = getHourAndMin(end);
+    endHr = pr.first;
+    endMin = pr.second;
+    pr = getHourAndMin(currentTime);
+    currentHr = pr.first;
+    currentMin = pr.second;
+    if(startHr < currentHr || startMin < currentMin){
+      startHr = currentHr;
+      startMin = currentMin;
     }
-    i++;
-    while (i < start.length) {
-      startMin += start[i];
-      i++;
-    }
-    i = 0;
-    while (end[i] != ':') {
-      endHr += end[i];
-      i++;
-    }
-    i++;
-    while (i < end.length) {
-      endMin += end[i];
-      i++;
-    }
-    var sh = int.parse(startHr);
-    var sm = int.parse(startMin);
-    var eh = int.parse(endHr);
-    var em = int.parse(endMin);
-    if (sh == eh) {
-      return (em - sm) * 60;
+    if (startHr == endHr) {
+      return (endMin - startMin) * 60;
     }
     int ans = 0;
-    if (sm > 0) {
-      ans = 60 - sm;
-      sh++;
-    }
-    if (em > 0) {
-      ans += em;
-    }
-    ans += (eh - sh) * 60;
+    ans = 60 - startMin;
+    startHr++;
+    ans +=endMin;
+    ans += (endHr - startHr) * 60;
     return ans*60;
   }
 
